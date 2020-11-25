@@ -1,0 +1,28 @@
+{
+    "name": "toyosi/laravel-interswitch",
+    "description": "This package simplifies interswitch payment integration in laravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Toyosi Oyelayo",
+            "email": "toyosioyelayo@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Toyosi\\Interswitch\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Toyosi\\Interswitch\\InterswitchServiceProvider"
+            ],
+            "aliases": {
+                "Interswitch": "Toyosi\\Interswitch\\Facade\\Interswitch"
+            }
+        }
+    }
+}
