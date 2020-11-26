@@ -6,6 +6,7 @@
     <title>Payment Page</title>
 </head>
 <body>
+    <h4>Loading...</h4>
     <form action="{{$transactionData['initializationURL']}}" id="initializationForm" method="post">
         <input name="product_id" type="hidden" value="{{$transactionData['productID']}}" />
         <input name="pay_item_id" type="hidden" value="{{$transactionData['payItemID']}}" />

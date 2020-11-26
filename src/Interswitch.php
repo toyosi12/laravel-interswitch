@@ -1,6 +1,6 @@
 <?php
 namespace Toyosi\Interswitch;
-
+use Toyosi\Interswitch\Models\InterswitchPayment;
 class Interswitch{
     /**
      * The current envirionment(test or live).
@@ -50,7 +50,7 @@ class Interswitch{
 
     public function __construct(){
        $this->env = config('interswitch.env');
-       $this->siteRedirectURL = config('interswitch.site_redirect_url');
+       $this->siteRedirectURL = env('APP_URL') . '/' .config('interswitch.fixed_redirect_url');
        $this->gatewayType = config('interswitch.gateway_type');
        $this->currency = config('interswitch.currency');
        $this->environmentSelector();
@@ -65,6 +65,21 @@ class Interswitch{
         $transactionReference = $this->generateTransactionReference();
         $amountInKobo = $request['amount'] * 100;
         $hash = $this->generateTransactionHash($amountInKobo, $transactionReference);
+
+        /**
+         * save payment data into the database
+         */
+        InterswitchPayment::create([
+            'customer_id' => $request['customerID'],
+            'customer_name' => $request['customerName'],
+            'customer_email' => $request['customerEmail'],
+            'transaction_reference' => $transactionReference,
+            'environment' => $this->env,
+            'response_code' => -1,
+            'response_text' => 'Pending',
+            'amount_in_kobo' => $amountInKobo,
+        ]);
+         
 
         /**
          * Data supplied to the interswitch interface
@@ -82,8 +97,56 @@ class Interswitch{
             'hash' => $hash,
             'initializationURL' => $this->initializationURL
         ];
+        
 
         return $computedData;
+    }
+
+
+    /**
+     * Get the status of a transaction
+     */
+    public function getTransactionStatus($request){
+        /**
+         * Generate required hash using SHA512 algorithm
+         */
+        $hash = hash('SHA512', $this->productID . $request['txnref'] . $this->macKey);
+        $transactionDetails = InterswitchPayment::where('transaction_reference', $request['txnref'])->first();
+        $amountInKobo = $transactionDetails['amount_in_kobo'];
+        $queryString = '?productId=' . $this->productID . "&transactionreference=" . $request['txnref'] . "&amount=". $amountInKobo;
+        $verificationURL = $this->transactionStatusURL . $queryString;
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => $verificationURL,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => "GET",
+        CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_TIMEOUT => 60,
+        CURLOPT_POST => false, 
+        CURLOPT_HTTPHEADER => [
+            "content-type: application/json",
+            "cache-control: no-cache",
+            "Connection: keep-alive",
+            "hash: " . $hash
+            ],
+        ));
+      
+        $response = json_decode(curl_exec($curl), true);
+        
+        /**
+         * Update database with transaction status
+         */
+        InterswitchPayment::where('transaction_reference', $request['txnref'])
+                        ->update([
+                            'payment_reference' => $response['PaymentReference'],
+                            'retrieval_reference_number' => $response['RetrievalReferenceNumber'],
+                            'response_code' => $response['ResponseCode'],
+                            'response_text' => $response['ResponseDescription']
+                        ]);
+        return $response;
+        
     }
 
     /**
@@ -91,7 +154,7 @@ class Interswitch{
      * It concatenates the current timestamp, to ensure it is unique
      */
     private function generateTransactionReference(){
-        $length = 5;
+        $length = 6;
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';

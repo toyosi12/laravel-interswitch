@@ -17,7 +17,7 @@ class InterswitchController extends Controller{
          * Amount must be greater than 0 and must be a number
          */
         $validator = Validator::make($request->all(), [
-            'customerID' => 'required',
+            'customerID' => 'required|numeric',
             'customerName' => 'required|string',
             'customerEmail' => 'required|email',
             'amount' => 'required|gt:0|numeric'
@@ -47,4 +47,15 @@ class InterswitchController extends Controller{
          */
          return view('interswitch::pay', compact('transactionData'));
     }
+
+    /**
+     * Redirect the user after payment attempt
+     */
+    public function redirect(Request $request){
+        $interswitch = new Interswitch;
+        $response = $interswitch->getTransactionStatus($request->all());
+        print_r($response);
+    }
+
+
 }

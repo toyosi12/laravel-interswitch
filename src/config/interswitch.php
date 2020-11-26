@@ -25,9 +25,14 @@
      'currency' => env('INTERSWITCH_CURRENCY', 566),
 
      /**
-      * Site redirection url
+      * Site redirection url as defined by user
       */
      'site_redirect_url' => env('INTERSWITCH_SITE_REDIRECT_URL'),
+
+     /**
+      * Site redirection url that works internally. Do not change
+      */
+      'fixed_redirect_url' => 'interswitch-redirect',
 
      /**
       * current environment (test or live)
