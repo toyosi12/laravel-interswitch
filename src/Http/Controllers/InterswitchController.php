@@ -8,7 +8,6 @@ use Toyosi\Interswitch\Interswitch;
 
 class InterswitchController extends Controller{
     public function pay(Request $request){
-
         /**
          * customerId, customerName, customerEmail and amount are 
          * all expected to be passed throught the form.

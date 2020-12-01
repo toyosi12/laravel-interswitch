@@ -47,12 +47,18 @@ class Interswitch{
      */
     private $transactionStatusURL;
 
+    /**
+     * split or not
+     */
+    private $split;
+
 
     public function __construct(){
        $this->env = config('interswitch.env');
        $this->siteRedirectURL = env('APP_URL') . '/' .config('interswitch.fixed_redirect_url');
        $this->gatewayType = config('interswitch.gateway_type');
        $this->currency = config('interswitch.currency');
+       $this->split = config('interswitch.split');
        $this->environmentSelector();
     }
 
@@ -177,16 +183,40 @@ class Interswitch{
     }
 
     /**
+     * This method is used by environmentSelector() to detect whether split payment
+     * is enabled or not.
+     */
+    private function splitDetector(){
+        if($this->split){
+            return 'split';
+        }else{
+            return 'noSplit';
+        }
+    }
+
+    /**
      * changes configurations based on the current environment(live or test)
      */
     private function environmentSelector(){
-        if($this->env == 'TEST'){
-            if($this->gatewayType == 'WEBPAY'){
-                $this->productID = config('interswitch.test.webpay.productID');
-                $this->payItemID = config('interswitch.test.webpay.payItemID');
-                $this->macKey = config('interswitch.test.webpay.macKey');
-                $this->transactionStatusURL = config('interswitch.test.webpay.transactionStatusURL');
-                $this->initializationURL = config('interswitch.test.webpay.initializationURL');
+        if($this->env === 'TEST'){
+            if($this->gatewayType === 'WEBPAY'){
+                $this->productID = config("interswitch.test.{$this->splitDetector()}.webPay.productID");
+                $this->payItemID = config("interswitch.test.{$this->splitDetector()}.webPay.payItemID");
+                $this->macKey = config("interswitch.test.{$this->splitDetector()}.webPay.macKey");
+                $this->transactionStatusURL = config("interswitch.test.{$this->splitDetector()}.webPay.transactionStatusURL");
+                $this->initializationURL = config("interswitch.test.{$this->splitDetector()}.webPay.initializationURL");
+            }else if($this->gatewayType === 'PAYDIRECT'){
+                $this->productID = config("interswitch.test.{$this->splitDetector()}.payDirect.productID");
+                $this->payItemID = config("interswitch.test.{$this->splitDetector()}.payDirect.payItemID");
+                $this->macKey = config("interswitch.test.{$this->splitDetector()}.payDirect.macKey");
+                $this->transactionStatusURL = config("interswitch.test.{$this->splitDetector()}.payDirect.transactionStatusURL");
+                $this->initializationURL = config("interswitch.test.{$this->splitDetector()}.payDirect.initializationURL");
+            }else if($this->gatewayType === 'COLLEGEPAY'){
+                $this->productID = config("interswitch.test.{$this->splitDetector()}.collegePay.productID");
+                $this->payItemID = config("interswitch.test.{$this->splitDetector()}.collegePay.payItemID");
+                $this->macKey = config("interswitch.test.{$this->splitDetector()}.collegePay.macKey");
+                $this->transactionStatusURL = config("interswitch.test.{$this->splitDetector()}.collegePay.transactionStatusURL");
+                $this->initializationURL = config("interswitch.test.{$this->splitDetector()}.collegePay.initializationURL");
             }
         }else if($this->env == 'LIVE'){
             $this->productID = config('interswitch.live.productID');
