@@ -10,7 +10,7 @@
         <input type="text" name="customerName" value="Toyosi Oyelayo" />
         <input type="text" name="customerID" value="1" />
         <input type="email" name="customerEmail" value="toyosioyelayo@gmail.com" />
-        <input type="text" name="amount" value="200" />
+        <input type="text" name="amount" value="5000" />
         <button type="submit">Pay</button>
     </form>
 </body>

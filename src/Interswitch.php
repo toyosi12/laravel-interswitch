@@ -1,6 +1,8 @@
 <?php
 namespace Toyosi\Interswitch;
 use Toyosi\Interswitch\Models\InterswitchPayment;
+use Toyosi\Interswitch\Exceptions\TotalSplitAmountException;
+
 class Interswitch{
     /**
      * The current envirionment(test or live).
@@ -16,6 +18,11 @@ class Interswitch{
      * The gateway type - webpay, paydirect or collegepay.
      */
     private $gatewayType;
+
+    /**
+     * Unique reference for transaction
+     */
+    private $transactionReference;
 
     /**
      * The currency being used, Naira is the default.
@@ -52,14 +59,23 @@ class Interswitch{
      */
     private $split;
 
+    /**
+     * Configurations for split payment
+     */
+    private array $splitDetails;
+
+    private $amountInKobo;
+
 
     public function __construct(){
-       $this->env = config('interswitch.env');
-       $this->siteRedirectURL = env('APP_URL') . '/' .config('interswitch.fixed_redirect_url');
-       $this->gatewayType = config('interswitch.gateway_type');
-       $this->currency = config('interswitch.currency');
-       $this->split = config('interswitch.split');
-       $this->environmentSelector();
+        $this->env = config('interswitch.env');
+        $this->siteRedirectURL = env('APP_URL') . '/' .config('interswitch.fixedRedirectURL');
+        $this->gatewayType = config('interswitch.gatewayType');
+        $this->currency = config('interswitch.currency');
+        $this->split = config('interswitch.split');
+        $this->transactionReference = $this->generateTransactionReference();
+        $this->environmentSelector();
+        $this->splitDetails = config('interswitch.splitDetails');
     }
 
 
@@ -68,9 +84,8 @@ class Interswitch{
      * the interswitch payment page
      */
     public function initializeTransaction($request){
-        $transactionReference = $this->generateTransactionReference();
-        $amountInKobo = $request['amount'] * 100;
-        $hash = $this->generateTransactionHash($amountInKobo, $transactionReference);
+        $this->amountInKobo = $request['amount'] * 100;
+        $hash = $this->generateTransactionHash($this->amountInKobo, $this->transactionReference);
 
         /**
          * save payment data into the database
@@ -79,11 +94,11 @@ class Interswitch{
             'customer_id' => $request['customerID'],
             'customer_name' => $request['customerName'],
             'customer_email' => $request['customerEmail'],
-            'transaction_reference' => $transactionReference,
+            'transaction_reference' => $this->transactionReference,
             'environment' => $this->env,
             'response_code' => -1,
             'response_text' => 'Pending',
-            'amount_in_kobo' => $amountInKobo,
+            'amount_in_kobo' => $this->amountInKobo,
         ]);
          
 
@@ -91,17 +106,18 @@ class Interswitch{
          * Data supplied to the interswitch interface
          */
         $computedData = [
-            'transactionReference' => $transactionReference,
+            'transactionReference' => $this->transactionReference,
             'productID' => $this->productID,
             'payItemID' => $this->payItemID,
-            'amount' => $amountInKobo,
+            'amount' => $this->amountInKobo,
             'siteRedirectURL' => $this->siteRedirectURL,
             'macKey' => $this->macKey,
             'currency' => $this->currency,
             'customerID' => $request['customerID'],
             'customerName' => $request['customerName'],
             'hash' => $hash,
-            'initializationURL' => $this->initializationURL
+            'initializationURL' => $this->initializationURL,
+            'splitData' => $this->generateXMLForSplitPayments()
         ];
         
 
@@ -118,8 +134,8 @@ class Interswitch{
          */
         $hash = hash('SHA512', $this->productID . $request['txnref'] . $this->macKey);
         $transactionDetails = InterswitchPayment::where('transaction_reference', $request['txnref'])->first();
-        $amountInKobo = $transactionDetails['amount_in_kobo'];
-        $queryString = '?productId=' . $this->productID . "&transactionreference=" . $request['txnref'] . "&amount=". $amountInKobo;
+        $this->amountInKobo = $transactionDetails['amount_in_kobo'];
+        $queryString = '?productId=' . $this->productID . "&transactionreference=" . $request['txnref'] . "&amount=". $this->amountInKobo;
         $verificationURL = $this->transactionStatusURL . $queryString;
 
         $curl = curl_init();
@@ -195,6 +211,54 @@ class Interswitch{
     }
 
     /**
+     * This method converts the array of split payment details
+     * defined in config/interswitch.php and converts to XML
+     */
+    public function generateXMLForSplitPayments(){
+        if(!$this->split) return;
+        
+        $XMLString = '';
+        $XMLDataItems = '';
+        $totalPercentageAllocation = 0;
+        /**
+         * Verify that the total percentage allocation is exactly 100
+         */
+        foreach($this->splitDetails as $splitDetail){
+            $totalPercentageAllocation += $splitDetail['percentageAllocation'];
+        }
+        if($totalPercentageAllocation !== 100){
+            throw new TotalSplitAmountException("Total percentage allocation is expected to be 100");
+        }
+
+        /**
+         * convert to XML
+         */
+        foreach($this->splitDetails as $index => $splitDetail){
+            $itemID = $index + 1;
+            $splitDetail = (object) $splitDetail;
+            $itemAmount = $this->amountInKobo * ($splitDetail->percentageAllocation / $totalPercentageAllocation);
+
+            $XMLDataItems .= "
+                <item_detail   
+                    item_id='$itemID'
+                    item_name='$splitDetail->itemName'
+                    item_amount='$itemAmount'
+                    bank_id='$splitDetail->bankID'
+                    acct_num='$splitDetail->accountNumber'
+                    />
+            ";
+            $XMLString = "
+                <payment_item_detail>
+                    <item_details detail_ref='$this->transactionReference'>
+                        {$XMLDataItems}
+                    </item_details>
+                </payment_item_detail>
+            ";
+        }
+        return $XMLString;
+    }
+
+    /**
      * changes configurations based on the current environment(live or test)
      */
     private function environmentSelector(){
@@ -225,5 +289,6 @@ class Interswitch{
             $this->transactionStatusURL = config('interswitch.live.transactionStatusURL');
             $this->initializationURL = config('interswitch.live.initializationURL');
         }
+
     }
 }

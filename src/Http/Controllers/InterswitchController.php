@@ -29,6 +29,7 @@ class InterswitchController extends Controller{
         if($validator->fails()){
             return $validator->errors();
         }
+
             
         /**
          * if all validations are passed,
@@ -38,7 +39,6 @@ class InterswitchController extends Controller{
          */
         $interswitch = new Interswitch;
         $transactionData = $interswitch->initializeTransaction($request->all());
-
         /**
          * Return to hidden forms (with the required data)
          * This sends a post request to interswitch servers
@@ -51,6 +51,8 @@ class InterswitchController extends Controller{
      * Redirect the user after payment attempt
      */
     public function redirect(Request $request){
+        print_r($request->all());
+        return;
         $interswitch = new Interswitch;
         $response = $interswitch->getTransactionStatus($request->all());
         print_r($response);

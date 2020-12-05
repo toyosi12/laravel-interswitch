@@ -7,17 +7,7 @@
      /**
       * Integration method. Could be WEBPAY, PAYDIRECT or COLLEGEPAY. Default is WEBPAY
       */
-     'gateway_type' => env('INTERSWITCH_GATEWAY_TYPE', 'COLLEGEPAY'),
-
-     /**
-      * Product ID provided by Interswitch
-      */
-     'product_id' => env('INTERSWITCH_PRODUCT_ID'),
-
-     /**
-      * Pay Item ID provided by Interswitch
-      */
-     'pay_item_id' => env('INTERSWITCH_PAY_ITEM_ID'),
+     'gatewayType' => env('INTERSWITCH_GATEWAY_TYPE', 'WEBPAY'),
 
      /**
       * Currency, Naira is default
@@ -27,12 +17,12 @@
      /**
       * Site redirection url as defined by user
       */
-     'site_redirect_url' => env('INTERSWITCH_SITE_REDIRECT_URL'),
+     'siteRedirectURL' => env('INTERSWITCH_SITE_REDIRECT_URL'),
 
      /**
       * Site redirection path that works internally. Do not change
       */
-      'fixed_redirect_url' => 'interswitch-redirect',
+      'fixedRedirectURL' => 'interswitch-redirect',
 
      /**
       * current environment (TEST or LIVE)
@@ -42,7 +32,28 @@
       /**
        * Split payment or not
        */
-      'split' => env('INTERSWITCH_SPLIT', true),
+      'split' => env('INTERSWITCH_SPLIT', false),
+
+      /**
+       * Split payment configurations
+       * WARNING: Total percentage allocation for all items must sum up to 100. 
+       * WARNING: IF YOU ARE NOT USING SPLIT PAYMENT, LEAVE splitDetails KEY AS AN EMPTY ARRAY, DO NOT REMOVE COMPLETELY
+       */
+      'splitDetails' => [
+          [
+            'itemName' => 'item1',
+            'bankID' => 7,
+            'accountNumber' => 1234567890,
+            'percentageAllocation' => 50
+
+        ],
+        [
+            'itemName' => 'item2',
+            'bankID' => 5,
+            'accountNumber' => 4564567890,
+            'percentageAllocation' => 50
+        ]
+      ],
 
      /**
       *  Test environment parameters
@@ -74,7 +85,7 @@
                     'payItemID' => 103
                 ]
           ],
-          
+
           /**
            * Paramters for split payments
            */
