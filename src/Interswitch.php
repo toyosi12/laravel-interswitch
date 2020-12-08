@@ -64,6 +64,11 @@ class Interswitch{
      */
     private array $splitDetails;
 
+    /**
+     * Name of institution (College pay split payment)
+     */
+    private $college;
+
     private $amountInKobo;
 
 
@@ -73,6 +78,7 @@ class Interswitch{
         $this->gatewayType = config('interswitch.gatewayType');
         $this->currency = config('interswitch.currency');
         $this->split = config('interswitch.split');
+        $this->college = config('interswitch.college');
         $this->transactionReference = $this->generateTransactionReference();
         $this->environmentSelector();
         $this->splitDetails = config('interswitch.splitDetails');
@@ -156,6 +162,8 @@ class Interswitch{
         ));
       
         $response = json_decode(curl_exec($curl), true);
+        $response['customerEmail'] = $transactionDetails['customer_email'];
+        $response['customerName'] = $transactionDetails['customer_name'];
         
         /**
          * Update database with transaction status
@@ -235,21 +243,28 @@ class Interswitch{
          */
         foreach($this->splitDetails as $index => $splitDetail){
             $itemID = $index + 1;
+
             $splitDetail = (object) $splitDetail;
-            $itemAmount = $this->amountInKobo * ($splitDetail->percentageAllocation / $totalPercentageAllocation);
+
+            /**
+             * In split payment, The total amount to be disbursed to banks must be total amount lef
+             * after deducting the N300 charge
+             */
+            $itemAmount = ($this->amountInKobo - 30000) * ($splitDetail->percentageAllocation / $totalPercentageAllocation);
+
 
             $XMLDataItems .= "
                 <item_detail   
                     item_id='$itemID'
                     item_name='$splitDetail->itemName'
-                    item_amount='$itemAmount'
+                    item_amt='$itemAmount'
                     bank_id='$splitDetail->bankID'
                     acct_num='$splitDetail->accountNumber'
                     />
             ";
             $XMLString = "
                 <payment_item_detail>
-                    <item_details detail_ref='$this->transactionReference'>
+                    <item_details detail_ref='$this->transactionReference' college='xyzdfd'>
                         {$XMLDataItems}
                     </item_details>
                 </payment_item_detail>

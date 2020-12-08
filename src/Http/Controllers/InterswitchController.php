@@ -4,7 +4,12 @@ namespace Toyosi\Interswitch\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Mail;
 use Toyosi\Interswitch\Interswitch;
+use Toyosi\Interswitch\Mail\InterswitchMailable;
+use Toyosi\Interswitch\Models\InterswitchPayment;
+
 
 class InterswitchController extends Controller{
     public function pay(Request $request){
@@ -51,11 +56,34 @@ class InterswitchController extends Controller{
      * Redirect the user after payment attempt
      */
     public function redirect(Request $request){
-        print_r($request->all());
-        return;
         $interswitch = new Interswitch;
         $response = $interswitch->getTransactionStatus($request->all());
-        print_r($response);
+
+
+        $rebuiltResponse = [
+            'paymentReference' => $response['PaymentReference'],
+            'responseCode' => $response['ResponseCode'],
+            'responseDescription' => $response['ResponseDescription'],
+            'amount' => $response['Amount'] / 100,
+            'transactionDate' => $response['TransactionDate'],
+            'customerEmail' => $response['customerEmail'],
+            'customerName' => $response['customerName']
+        ];
+
+        /**
+         * Send email to user on successful transaction if email notification is enabled
+         */
+        
+        if(config('interswitch.send_mail') && in_array($rebuiltResponse['responseCode'], ['00', '10', '11'])){
+            Mail::to($rebuiltResponse['customerEmail'])->send(new InterswitchMailable($rebuiltResponse));
+        }
+
+        return redirect()->to(config('interswitch.siteRedirectURL'))->with('response', $rebuiltResponse);
+    }
+
+    public function logs(){
+        $logs = InterswitchPayment::all()->sortByDesc("created_at");;
+        return view('interswitch::logs', compact('logs'));
     }
 
 

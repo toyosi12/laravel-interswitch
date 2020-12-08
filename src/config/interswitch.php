@@ -7,7 +7,7 @@
      /**
       * Integration method. Could be WEBPAY, PAYDIRECT or COLLEGEPAY. Default is WEBPAY
       */
-     'gatewayType' => env('INTERSWITCH_GATEWAY_TYPE', 'WEBPAY'),
+     'gatewayType' => env('INTERSWITCH_GATEWAY_TYPE', 'COLLEGEPAY'),
 
      /**
       * Currency, Naira is default
@@ -32,7 +32,17 @@
       /**
        * Split payment or not
        */
-      'split' => env('INTERSWITCH_SPLIT', false),
+      'split' => env('INTERSWITCH_SPLIT', true),
+
+      /**
+       * Name of Institution(CollegePay split payment only)
+       */
+      'college' => env('INTERSWITCH_COLLEGE', 'Unnamed'),
+
+      /**
+       * send mail to user on successfull completion of transaction
+       */
+      'send_mail' => env('INTERSWITCH_SEND_MAIL', true),
 
       /**
        * Split payment configurations
@@ -49,7 +59,7 @@
         ],
         [
             'itemName' => 'item2',
-            'bankID' => 5,
+            'bankID' => 10,
             'accountNumber' => 4564567890,
             'percentageAllocation' => 50
         ]
