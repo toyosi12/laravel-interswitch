@@ -1,12 +1,5 @@
 <?php
-Route::group([
-    'namespace' => 'Toyosi\Interswitch\Http\Controllers', 
-    
-    /**
-     * Allow package have access to session
-     */
-    'middleware' => '\Illuminate\Session\Middleware\StartSession::class'], 
-    function(){
+Route::group(['namespace' => 'Toyosi\Interswitch\Http\Controllers'], function(){
     Route::post('interswitch-pay', 'InterswitchController@pay');
 
     /**
@@ -23,5 +16,7 @@ Route::group([
     Route::get('interswitch-sample-form', function(){
         return view('interswitch::sample-form');
     });
+
+
 
 });

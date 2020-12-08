@@ -9,10 +9,17 @@ use Illuminate\Support\Facades\Mail;
 use Toyosi\Interswitch\Interswitch;
 use Toyosi\Interswitch\Mail\InterswitchMailable;
 use Toyosi\Interswitch\Models\InterswitchPayment;
-
+use Toyosi\Interswitch\Exceptions\IntegrationTypeException;
 
 class InterswitchController extends Controller{
+    
     public function pay(Request $request){
+        $interswitch = new Interswitch;
+        /**
+         * Verify that a valid integration is used
+         */
+        $interswitch->verifyGateway();
+
         /**
          * customerId, customerName, customerEmail and amount are 
          * all expected to be passed throught the form.
@@ -42,8 +49,8 @@ class InterswitchController extends Controller{
          * This is the beginning of the phase where the user is redirected to 
          * the payment page provided by interswitch
          */
-        $interswitch = new Interswitch;
         $transactionData = $interswitch->initializeTransaction($request->all());
+
         /**
          * Return to hidden forms (with the required data)
          * This sends a post request to interswitch servers
@@ -70,15 +77,17 @@ class InterswitchController extends Controller{
             'customerName' => $response['customerName']
         ];
 
+
         /**
          * Send email to user on successful transaction if email notification is enabled
          */
-        
-        if(config('interswitch.send_mail') && in_array($rebuiltResponse['responseCode'], ['00', '10', '11'])){
+        if(in_array($rebuiltResponse['responseCode'], ['00', '10', '11'])){
             Mail::to($rebuiltResponse['customerEmail'])->send(new InterswitchMailable($rebuiltResponse));
         }
 
-        return redirect()->to(config('interswitch.siteRedirectURL'))->with('response', $rebuiltResponse);
+        $redirectURL = $interswitch->attachQueryString($rebuiltResponse);
+
+        return redirect()->to($redirectURL);
     }
 
     public function logs(){

@@ -1,7 +1,7 @@
 <?php
 namespace Toyosi\Interswitch;
 use Toyosi\Interswitch\Models\InterswitchPayment;
-use Toyosi\Interswitch\Exceptions\TotalSplitAmountException;
+use Toyosi\Interswitch\Exceptions\SplitPaymentException;
 
 class Interswitch{
     /**
@@ -10,7 +10,12 @@ class Interswitch{
     private $env;
 
     /**
-     * The url for redirection after payment.
+     * The url for redirection after payment(used internally by the system).
+     */
+    private $fixedRedirectURL;
+
+    /**
+     * User defined redirect url
      */
     private $siteRedirectURL;
 
@@ -71,17 +76,34 @@ class Interswitch{
 
     private $amountInKobo;
 
+    /**
+     * Send mail after successful transaction or not
+     */
+    private $sendMail;
+
+    const GATEWAY_TYPES = ['WEBPAY', 'COLLEGEPAY', 'PAYDIRECT'];
 
     public function __construct(){
         $this->env = config('interswitch.env');
-        $this->siteRedirectURL = env('APP_URL') . '/' .config('interswitch.fixedRedirectURL');
+        $this->fixedRedirectURL = env('APP_URL') . '/' .config('interswitch.fixedRedirectURL');
+        $this->siteRedirectURL = config('interswitch.siteRedirectURL');
         $this->gatewayType = config('interswitch.gatewayType');
         $this->currency = config('interswitch.currency');
         $this->split = config('interswitch.split');
         $this->college = config('interswitch.college');
         $this->transactionReference = $this->generateTransactionReference();
+        $this->sendMail = config('interswitch.send_mail');
         $this->environmentSelector();
         $this->splitDetails = config('interswitch.splitDetails');
+    }
+
+    /**
+     * Verify that a valid integration is used
+     */
+    public function verifyGateway(){
+        if(!in_array($this->gatewayType, self::GATEWAY_TYPES)){
+            throw new IntegrationTypeException("Unrecongnized Integration Type");
+        }
     }
 
 
@@ -116,7 +138,7 @@ class Interswitch{
             'productID' => $this->productID,
             'payItemID' => $this->payItemID,
             'amount' => $this->amountInKobo,
-            'siteRedirectURL' => $this->siteRedirectURL,
+            'siteRedirectURL' => $this->fixedRedirectURL,
             'macKey' => $this->macKey,
             'currency' => $this->currency,
             'customerID' => $request['customerID'],
@@ -201,7 +223,7 @@ class Interswitch{
      * 
      */
     private function generateTransactionHash($_amountInKobo, $_transactionReference){
-        $paramters = $_transactionReference . $this->productID . $this->payItemID . $_amountInKobo . $this->siteRedirectURL . $this->macKey;
+        $paramters = $_transactionReference . $this->productID . $this->payItemID . $_amountInKobo . $this->fixedRedirectURL . $this->macKey;
         $hash = hash('SHA512', $paramters);
         return $hash;
     }
@@ -225,6 +247,12 @@ class Interswitch{
     public function generateXMLForSplitPayments(){
         if(!$this->split) return;
         
+        /**
+         * Prevent split if integration is not collegepay
+         */
+        if($this->gatewayType != 'COLLEGEPAY'){
+            throw new SplitPaymentException("Split payment only works with college pay");
+        }
         $XMLString = '';
         $XMLDataItems = '';
         $totalPercentageAllocation = 0;
@@ -235,7 +263,7 @@ class Interswitch{
             $totalPercentageAllocation += $splitDetail['percentageAllocation'];
         }
         if($totalPercentageAllocation !== 100){
-            throw new TotalSplitAmountException("Total percentage allocation is expected to be 100");
+            throw new SplitPaymentException("Total percentage allocation is expected to be 100");
         }
 
         /**
@@ -297,7 +325,7 @@ class Interswitch{
                 $this->transactionStatusURL = config("interswitch.test.{$this->splitDetector()}.collegePay.transactionStatusURL");
                 $this->initializationURL = config("interswitch.test.{$this->splitDetector()}.collegePay.initializationURL");
             }
-        }else if($this->env == 'LIVE'){
+        }else if($this->env === 'LIVE'){
             $this->productID = config('interswitch.live.productID');
             $this->payItemID = config('interswitch.live.payItemID');
             $this->macKey = config('interswitch.live.macKey');
@@ -305,5 +333,17 @@ class Interswitch{
             $this->initializationURL = config('interswitch.live.initializationURL');
         }
 
+    }
+
+    public function attachQueryString($rebuiltResponse){
+        $queryString = '/?';
+        foreach($rebuiltResponse as $key => $response){
+            $queryString .= $key . '=' . $response . '&';
+        }
+
+        /**
+         * Form the complete url and remove the last character which is '&'
+         */
+        return substr($this->siteRedirectURL . $queryString, 0, -1);
     }
 }

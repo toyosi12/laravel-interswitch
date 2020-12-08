@@ -16,7 +16,7 @@
                         @if((in_array(session('response')['responseCode'], ['00', '10', '11'])))
                             <div class="alert alert-success">
                                 {{ session('response')['responseDescription'] }} <br />
-                                Your transaction was succesful <br />
+                                Your transaction was successful <br />
                                 Payment Reference: {{ session('response')['paymentReference']}}
                             </div>
         
@@ -38,7 +38,7 @@
                         </div>
                         <div class="form-group">
                             <label>Customer Email:</label>
-                            <input type="email" class="form-control" name="customerEmail" value="toyosioyelayo@gmail.com" />
+                            <input type="email" class="form-control" name="customerEmail" value="johndoe@gmail.com" />
                         </div>
                         <div class="form-group">
                             <label>Amount:</label>
