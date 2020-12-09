@@ -10,6 +10,11 @@ class InterswitchServiceProvider extends ServiceProvider{
         $this->loadViewsFrom(__DIR__ . '/views', 'interswitch');
         $this->mergeConfigFrom(__DIR__ . '/config/interswitch.php', 'interswitch');
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+
+        $this->publishes([
+            __DIR__ . '/config/interswitch.php' => config_path('interswitch.php'),
+            __DIR__ . '/views' =>resource_path('views/vendor/interswitch')
+        ]);
     }
 
 
