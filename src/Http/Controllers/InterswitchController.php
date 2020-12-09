@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Mail;
-use Toyosi\Interswitch\Interswitch;
+use Toyosi\Interswitch\Facades\Interswitch;
 use Toyosi\Interswitch\Mail\InterswitchMailable;
 use Toyosi\Interswitch\Models\InterswitchPayment;
 use Toyosi\Interswitch\Exceptions\IntegrationTypeException;
@@ -20,11 +20,10 @@ use Toyosi\Interswitch\Exceptions\IntegrationTypeException;
 class InterswitchController extends Controller{
     
     public function pay(Request $request){
-        $interswitch = new Interswitch;
         /**
          * Verify that a valid integration is used
          */
-        $interswitch->verifyGateway();
+        Interswitch::verifyGateway();
 
         /**
          * customerId, customerName, customerEmail and amount are 
@@ -55,7 +54,7 @@ class InterswitchController extends Controller{
          * This is the beginning of the phase where the user is redirected to 
          * the payment page provided by interswitch
          */
-        $transactionData = $interswitch->initializeTransaction($request->all());
+        $transactionData = Interswitch::initializeTransaction($request->all());
 
         /**
          * Return to hidden forms (with the required data)
@@ -69,8 +68,7 @@ class InterswitchController extends Controller{
      * Redirect the user after payment attempt
      */
     public function redirect(Request $request){
-        $interswitch = new Interswitch;
-        $response = $interswitch->getTransactionStatus($request->all());
+        $response = Interswitch::getTransactionStatus($request->all());
 
 
         $rebuiltResponse = [
@@ -91,14 +89,12 @@ class InterswitchController extends Controller{
             Mail::to($rebuiltResponse['customerEmail'])->send(new InterswitchMailable($rebuiltResponse));
         }
 
-        $redirectURL = $interswitch->attachQueryString($rebuiltResponse);
+        $redirectURL = Interswitch::attachQueryString($rebuiltResponse);
 
         return redirect()->to($redirectURL);
     }
 
     public function requeryTransaction(Request $request){
-        $interswitch = new Interswitch;
-
         $validator = Validator::make($request->all(), [
             'txnref' => 'required'
         ]);
@@ -111,7 +107,7 @@ class InterswitchController extends Controller{
             ]);
         }
 
-        $response = $interswitch->getTransactionStatus($request->all());
+        $response = Interswitch::getTransactionStatus($request->all());
 
         return response()->json([
             'success' => true,

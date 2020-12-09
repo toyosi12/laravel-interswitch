@@ -19,5 +19,12 @@ Route::group(['namespace' => 'Toyosi\Interswitch\Http\Controllers'], function(){
      */
     Route::post('interswitch-requery', 'InterswitchController@requeryTransaction');
 
+    
+    Route::get('interswitch-sample-form', function(){
+        return view('interswitch::sample-form');
+    });
+
+
+
 
 });
