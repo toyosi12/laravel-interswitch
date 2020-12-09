@@ -1,4 +1,9 @@
 <?php
+/**
+ * This file is part of the Laravel Interswitch Package
+ * 
+ * (c) Toyosi Oyelayo <toyosioyelayo@gmail.com>
+ */
 namespace Toyosi\Interswitch;
 use Toyosi\Interswitch\Models\InterswitchPayment;
 use Toyosi\Interswitch\Exceptions\SplitPaymentException;

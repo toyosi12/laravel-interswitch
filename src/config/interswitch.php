@@ -1,5 +1,7 @@
 <?php
 /**
+ * This file is part of the Laravel Interswitch Package
+ * 
  * (c) Toyosi Oyelayo <toyosioyelayo@gmail.com>
  */
 
@@ -15,7 +17,7 @@
      'currency' => env('INTERSWITCH_CURRENCY', 566),
 
      /**
-      * Site redirection url as defined by user
+      * Site redirection url as defined by the user
       */
      'siteRedirectURL' => env('INTERSWITCH_SITE_REDIRECT_URL'),
 

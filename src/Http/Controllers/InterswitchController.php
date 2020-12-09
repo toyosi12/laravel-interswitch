@@ -90,6 +90,31 @@ class InterswitchController extends Controller{
         return redirect()->to($redirectURL);
     }
 
+    public function requeryTransaction(Request $request){
+        $interswitch = new Interswitch;
+
+        $validator = Validator::make($request->all(), [
+            'txnref' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'success' => false,
+                'message' => "Requery Failed",
+                'data' => $validator->errors()
+            ]);
+        }
+
+        $response = $interswitch->getTransactionStatus($request->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => "Requery Successful",
+            'data' => $response
+        ]);
+        
+    }
+
     public function logs(){
         $logs = InterswitchPayment::all()->sortByDesc("created_at");;
         return view('interswitch::logs', compact('logs'));

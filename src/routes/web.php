@@ -12,11 +12,12 @@ Route::group(['namespace' => 'Toyosi\Interswitch\Http\Controllers'], function(){
      * Log of all transactions. Implement route guards as necessary
      */
     Route::get('interswitch-logs', 'InterswitchController@logs');
-    
-    Route::get('interswitch-sample-form', function(){
-        return view('interswitch::sample-form');
-    });
 
+
+    /**
+     * Requery incomplete transactions
+     */
+    Route::post('interswitch-requery', 'InterswitchController@requeryTransaction');
 
 
 });
