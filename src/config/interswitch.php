@@ -44,7 +44,7 @@
       /**
        * send mail to user on successfull completion of transaction
        */
-      'send_mail' => env('INTERSWITCH_SEND_MAIL', true),
+      'send_mail' => env('INTERSWITCH_SEND_MAIL', false),
 
       /**
        * Split payment configurations

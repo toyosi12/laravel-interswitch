@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file is part of the Laravel Interswitch Package
+ * 
+ * (c) Toyosi Oyelayo <toyosioyelayo@gmail.com>
+ */
+
 namespace Toyosi\Interswitch\Http\Controllers;
 
 use App\Http\Controllers\Controller;
