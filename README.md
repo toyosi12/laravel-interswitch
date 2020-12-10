@@ -79,6 +79,18 @@ Note: **'amount' field must be in kobo**
 Navigate to your newly created route, click the 'Pay Now' button and follow the required steps. 
 Note that the form is submitted to route 'interswitch-pay', this is predefined in the package.
 All the fields are required. On clicking the 'Pay Now' button, the user is redirected to interswitch's payment page, where card details are entered. The user is then redirected back to your website as indicated by 'INTERSWITCH_SITE_REDIRECT_URL'.
+This url will return the result of the transaction. Sample response will be like so:
+```php
+{
+  "paymentReference": "FBN|WEB|CDEM|10-12-2020|383104",
+  "responseCode": "00",
+  "responseDescription": "Approved Successful",
+  "amount": "12000",
+  "transactionDate": "2020-12-10T15:59:37.827",
+  "customerEmail": "toyosioyelayo@gmail.com",
+  "customerName": "Toyosi Oyelayo"
+}
+```
 A list of test cards [can be found here](https://sandbox.interswitchng.com/docbase/docs/webpay/test-cards).
 
 
@@ -138,6 +150,13 @@ With split payment, you can divide money recieved on your site into multiple acc
  
  ### Requerying Transactions
  Sometimes, things might go wrong while a user is making a payment. It could be power failure or flaky internet connectivity. To complete an already started payment process, you can click the 'requery' button in 'interswitch logs'. This updates the transaction as necessary.
+ 
+ ## Further Info
+ Interswitch requires that the user gets a mail after every successful transaction. This has already been added to the package. You only need to add the following to your .env file:
+ ```php
+ INTERSWITCH_SEND_MAIL=true
+ ```
+ Ensure that your mail variables are properly set in .env.
  
  ## Contributing
  Do feel free to fork this repo and contribute by submitting a pull request. Let's make it better.
