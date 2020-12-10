@@ -9,7 +9,7 @@
      /**
       * Integration method. Could be WEBPAY, PAYDIRECT or COLLEGEPAY. Default is WEBPAY
       */
-     'gatewayType' => env('INTERSWITCH_GATEWAY_TYPE', 'WEBPAY'),
+     'gatewayType' => env('INTERSWITCH_GATEWAY_TYPE', 'COLLEGEPAY'),
 
      /**
       * Currency, Naira is default
@@ -34,7 +34,7 @@
       /**
        * Split payment or not
        */
-      'split' => env('INTERSWITCH_SPLIT', false),
+      'split' => env('INTERSWITCH_SPLIT', true),
 
       /**
        * Name of Institution(CollegePay split payment only)
@@ -124,5 +124,16 @@
                     'payItemID' => 101
                 ]
           ]
-      ]
+        ],
+
+    /**
+      *  Live environment parameters
+      */
+      'live' => [
+            'macKey' => env('INTERSWITCH_MAC_KEY'),
+            'initializationURL' => 'https://sandbox.interswitchng.com/webpay/pay',
+            'transactionStatusURL' => 'https://sandbox.interswitchng.com/webpay/api/v1/gettransaction.json',
+            'productID' => env('INTERSWITCH_PRODUCT_ID'),
+            'payItemID' => env('INTERSWITCH_PAY_ITEM_ID')
+    ]
  ];
