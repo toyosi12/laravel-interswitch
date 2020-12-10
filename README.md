@@ -74,7 +74,7 @@ Then create the view. In this case, 'payment.blade.php'. The view can be like so
     style="padding: 10px 20px; background-color: #ff0000; border: none; color: #fff">Pay Now</button>
 </form>
 ```
-Note: **'amount' field must be in kobo**
+**Note: 'amount' field must be in kobo**
 
 Navigate to your newly created route, click the 'Pay Now' button and follow the required steps. 
 Note that the form is submitted to route 'interswitch-pay', this is predefined in the package.
