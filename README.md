@@ -43,11 +43,11 @@ The payment flow described below applies to interswitch and many other payment g
 ```php
 INTERSWITCH_SITE_REDIRECT_URL="${APP_URL}/response"
 ```
-'response' as indicated above could be anything. This is the only variable in the test environment that is required. The specified value indicates the url the user is redirected to after every transaction.
+This is the only variable in the test environment that is required. 'response' as indicated above could be anything. The specified value indicates the url the user is redirected to after every transaction.
 Note: please ensure APP_URL is correctly defined.
 
 ### 2. Create payment route and view
-Create your route for payment in web.php. Something like: 
+Create your payment route in web.php. Something like: 
 ```php
 Route::get('pay', function(){
   return view('payment');
@@ -119,7 +119,13 @@ With split payment, you can divide money recieved on your site into multiple acc
       ],
  ```
  In the above example, two bank accounts are indicated and the total amount is split into two equal parts (50% each) as indicated with 'percentageAllocation'. In the test environment, 'accountNumber' can be any 10 digit number. Don't forget to change to valid account numbers in the live environment. The package handles the conversion into XML and other necessary stuffs.
+ Note: You can find the list of bank IDs [here](https://sandbox.interswitchng.com/docbase/docs/collegepay-web/xml-split-bank-codes)
  
+ ## Transaction Logs
+ You can find all transaction logs at the 'interswitch-logs' route. Don't forget to protect this route. You don't want just any user to have access to it.
+ 
+ ### Requerying Transactions
+ Sometimes, things might go wrong while a user is making payment. It could be power failure or flaky internet connectivity. To complete an already started payment process, you can click the 'requery' button in 'interswitch logs'. This updates the transaction as necessary.
  
  ## Contributing
  Do feel free to fork this repo and contribute by submitting a pull request. Let's make this better.
