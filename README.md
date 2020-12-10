@@ -48,6 +48,12 @@ The payment flow described below applies to interswitch and many other payment g
 INTERSWITCH_SITE_REDIRECT_URL="${APP_URL}/response"
 ```
 This is the only variable in the test environment that is required. 'response' as indicated above could be anything. The specified value indicates the url the user is redirected to after every transaction.
+Don't forget to add this route in your project. In this case, it will be:
+```php
+ Route::get('response', function(){
+  return $_GET;
+ });
+```
 Note: please ensure APP_URL is correctly defined.
 
 ### 2. Create payment route and view
