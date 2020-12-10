@@ -7,6 +7,7 @@
 namespace Toyosi\Interswitch;
 use Toyosi\Interswitch\Models\InterswitchPayment;
 use Toyosi\Interswitch\Exceptions\SplitPaymentException;
+use Toyosi\Interswitch\Exceptions\IntegrationTypeException;
 use Illuminate\Support\Facades\Mail;
 use Toyosi\Interswitch\Mail\InterswitchMailable;
 
@@ -264,7 +265,7 @@ class Interswitch{
         $XMLString = '';
         $XMLDataItems = '';
         $totalPercentageAllocation = 0;
-        
+
         /**
          * Verify that the total percentage allocation is exactly 100
          */
@@ -359,7 +360,6 @@ class Interswitch{
     public function sendTransactionMail($rebuiltResponse){
         if($this->sendMail){
             Mail::to($rebuiltResponse['customerEmail'])->send(new InterswitchMailable($rebuiltResponse));
-
         }
     }
 }
