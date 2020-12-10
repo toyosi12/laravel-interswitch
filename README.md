@@ -24,7 +24,11 @@ php artisan migrate
 ```
 
 ## Configuration
-After the installation, a configuration file 'interswitch.php' with some defaults is placed in your config directory.
+You can publish the configuration file using this command:
+```bash
+php artisan vendor:publish --provider="Toyosi\Interswitch\InterswitchServiceProvider"
+```
+A configuration file 'interswitch.php' with some defaults is placed in your config directory.
 
 With this package, you can easily integrate the three major payment types of interswitch which are webpay, paydirect or collegepay. Webpay is the default type.
 
@@ -44,6 +48,12 @@ The payment flow described below applies to interswitch and many other payment g
 INTERSWITCH_SITE_REDIRECT_URL="${APP_URL}/response"
 ```
 This is the only variable in the test environment that is required. 'response' as indicated above could be anything. The specified value indicates the url the user is redirected to after every transaction.
+Don't forget to add this route in your project. In this case, it will be:
+```php
+ Route::get('response', function(){
+  return $_GET;
+ });
+```
 Note: please ensure APP_URL is correctly defined.
 
 ### 2. Create payment route and view
@@ -51,7 +61,7 @@ Create your payment route in web.php. Something like:
 ```php
 Route::get('pay', function(){
   return view('payment');
-})
+});
 ```
 Then create the view. In this case, 'payment.blade.php'. The view can be like so:
 ```html
@@ -59,14 +69,28 @@ Then create the view. In this case, 'payment.blade.php'. The view can be like so
     <input type="hidden" name="customerName" value="Toyosi Oyelayo" />
     <input type="hidden" name="customerID" value="1" />
     <input type="hidden" name="customerEmail" value="toyosioyelayo@gmail.com" />
-    <input type="hidden" name="amount" value="12000" />
+    <input type="hidden" name="amount" value="12000" /><!-- Amount must be in kobo -->
     <button type="submit"
     style="padding: 10px 20px; background-color: #ff0000; border: none; color: #fff">Pay Now</button>
 </form>
 ```
+**Note: 'amount' field must be in kobo**
 
-Note that the form is submitted to 'interswitch-pay', this is predefined in the package.
+Navigate to your newly created route, click the 'Pay Now' button and follow the required steps. 
+Note that the form is submitted to route 'interswitch-pay', this is predefined in the package.
 All the fields are required. On clicking the 'Pay Now' button, the user is redirected to interswitch's payment page, where card details are entered. The user is then redirected back to your website as indicated by 'INTERSWITCH_SITE_REDIRECT_URL'.
+This url will return the result of the transaction. Sample response will be like so:
+```php
+{
+  "paymentReference": "FBN|WEB|CDEM|10-12-2020|383104",
+  "responseCode": "00",
+  "responseDescription": "Approved Successful",
+  "amount": "12000",
+  "transactionDate": "2020-12-10T15:59:37.827",
+  "customerEmail": "toyosioyelayo@gmail.com",
+  "customerName": "Toyosi Oyelayo"
+}
+```
 A list of test cards [can be found here](https://sandbox.interswitchng.com/docbase/docs/webpay/test-cards).
 
 
@@ -126,6 +150,13 @@ With split payment, you can divide money recieved on your site into multiple acc
  
  ### Requerying Transactions
  Sometimes, things might go wrong while a user is making a payment. It could be power failure or flaky internet connectivity. To complete an already started payment process, you can click the 'requery' button in 'interswitch logs'. This updates the transaction as necessary.
+ 
+ ## Further Info
+ Interswitch requires that the user gets a mail after every successful transaction. This has already been added to the package. You only need to add the following to your .env file:
+ ```php
+ INTERSWITCH_SEND_MAIL=true
+ ```
+ Ensure that your mail variables are properly set in .env.
  
  ## Contributing
  Do feel free to fork this repo and contribute by submitting a pull request. Let's make it better.
