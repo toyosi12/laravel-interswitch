@@ -71,7 +71,7 @@ Then create the view. In this case, 'payment.blade.php'. The view can be like so
     <input type="hidden" name="customerEmail" value="toyosioyelayo@gmail.com" />
     <input type="hidden" name="amount" value="12000" /><!-- Amount must be in kobo -->
     <button type="submit"
-    style="padding: 10px 20px; background-color: #ff0000; border: none; color: #fff">Pay Now</button>
+    style="padding: 10px 20px; background-color: #ff0000; border: none; color: #fff; cursor: pointer">Pay Now</button>
 </form>
 ```
 **Note: 'amount' field must be in kobo**
