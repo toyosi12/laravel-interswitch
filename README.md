@@ -24,7 +24,11 @@ php artisan migrate
 ```
 
 ## Configuration
-After the installation, a configuration file 'interswitch.php' with some defaults is placed in your config directory.
+You can publish the configuration file using this command:
+```bash
+php artisan vendor:publish --provider="Toyosi\Interswitch\InterswitchServiceProvider"
+```
+A configuration file 'interswitch.php' with some defaults is placed in your config directory.
 
 With this package, you can easily integrate the three major payment types of interswitch which are webpay, paydirect or collegepay. Webpay is the default type.
 
