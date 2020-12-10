@@ -70,7 +70,7 @@ Then create the view. In this case, 'payment.blade.php'. The view can be like so
 ```
 
 Navigate to your newly created route, click the 'Pay Now' button and follow the required steps. 
-Note that the form is submitted to 'interswitch-pay', this is predefined in the package.
+Note that the form is submitted to route 'interswitch-pay', this is predefined in the package.
 All the fields are required. On clicking the 'Pay Now' button, the user is redirected to interswitch's payment page, where card details are entered. The user is then redirected back to your website as indicated by 'INTERSWITCH_SITE_REDIRECT_URL'.
 A list of test cards [can be found here](https://sandbox.interswitchng.com/docbase/docs/webpay/test-cards).
 
