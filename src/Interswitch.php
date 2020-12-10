@@ -264,6 +264,7 @@ class Interswitch{
         $XMLString = '';
         $XMLDataItems = '';
         $totalPercentageAllocation = 0;
+        
         /**
          * Verify that the total percentage allocation is exactly 100
          */
