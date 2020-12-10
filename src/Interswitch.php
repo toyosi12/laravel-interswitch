@@ -7,6 +7,9 @@
 namespace Toyosi\Interswitch;
 use Toyosi\Interswitch\Models\InterswitchPayment;
 use Toyosi\Interswitch\Exceptions\SplitPaymentException;
+use Illuminate\Support\Facades\Mail;
+use Toyosi\Interswitch\Mail\InterswitchMailable;
+
 
 class Interswitch{
     /**
@@ -117,7 +120,7 @@ class Interswitch{
      * the interswitch payment page
      */
     public function initializeTransaction($request){
-        $this->amountInKobo = $request['amount'] * 100;
+        $this->amountInKobo = $request['amount'];
         $hash = $this->generateTransactionHash($this->amountInKobo, $this->transactionReference);
 
         /**
@@ -350,5 +353,12 @@ class Interswitch{
          * Form the complete url and remove the last character which is '&'
          */
         return substr($this->siteRedirectURL . $queryString, 0, -1);
+    }
+
+    public function sendTransactionMail($rebuiltResponse){
+        if($this->sendMail){
+            Mail::to($rebuiltResponse['customerEmail'])->send(new InterswitchMailable($rebuiltResponse));
+
+        }
     }
 }

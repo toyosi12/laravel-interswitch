@@ -11,9 +11,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Mail;
 use Toyosi\Interswitch\Facades\Interswitch;
-use Toyosi\Interswitch\Mail\InterswitchMailable;
 use Toyosi\Interswitch\Models\InterswitchPayment;
 use Toyosi\Interswitch\Exceptions\IntegrationTypeException;
 
@@ -75,7 +73,7 @@ class InterswitchController extends Controller{
             'paymentReference' => $response['PaymentReference'],
             'responseCode' => $response['ResponseCode'],
             'responseDescription' => $response['ResponseDescription'],
-            'amount' => $response['Amount'] / 100,
+            'amount' => $response['Amount'],
             'transactionDate' => $response['TransactionDate'],
             'customerEmail' => $response['customerEmail'],
             'customerName' => $response['customerName']
@@ -86,7 +84,7 @@ class InterswitchController extends Controller{
          * Send email to user on successful transaction if email notification is enabled
          */
         if(in_array($rebuiltResponse['responseCode'], ['00', '10', '11'])){
-            Mail::to($rebuiltResponse['customerEmail'])->send(new InterswitchMailable($rebuiltResponse));
+            Interswitch::sendTransactionMail($rebuiltResponse);
         }
 
         $redirectURL = Interswitch::attachQueryString($rebuiltResponse);
