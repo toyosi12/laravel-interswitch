@@ -66,14 +66,14 @@ Then create the view. In this case, 'payment.blade.php'. The view can be like so
 ```
 
 Note that the form is submitted to 'interswitch-pay', this is predefined in the package.
-All the fields are required. On clicking the 'Pay' button, the user is redirected to interswitch's payment page, where card details are entered. The user is then redirected back to your website as indicated by 'INTERSWITCH_SITE_REDIRECT_URL'.
-A list of test cards can be found [here](https://sandbox.interswitchng.com/docbase/docs/webpay/test-cards).
+All the fields are required. On clicking the 'Pay Now' button, the user is redirected to interswitch's payment page, where card details are entered. The user is then redirected back to your website as indicated by 'INTERSWITCH_SITE_REDIRECT_URL'.
+A list of test cards [can be found here](https://sandbox.interswitchng.com/docbase/docs/webpay/test-cards).
 
 
 ### Live Environment
 The same processes described in the test environment above also applies to the live environment. Do note that Interswitch does certain checks on your website before it can be approved to recieve live payments:
 1. You must have the interswitch logo on your website
-2. You must have filled and submitted the User Acceptance Test Form which has to be approved by interswitch. You can download the form [here](https://sandbox.interswitchng.com/docbase/docs/webpay/merchant-user-acceptance-testing)
+2. You must have filled and submitted the User Acceptance Test Form which has to be approved by interswitch. You can [download the form here](https://sandbox.interswitchng.com/docbase/docs/webpay/merchant-user-acceptance-testing)
 3. After this, you are given your unique Product ID, MAC ID and Pay Item ID. These have to be included in your .env file like so:
 
 ```php
@@ -119,7 +119,7 @@ With split payment, you can divide money recieved on your site into multiple acc
       ],
  ```
  In the above example, two bank accounts are indicated and the total amount is split into two equal parts (50% each) as indicated with 'percentageAllocation'. In the test environment, 'accountNumber' can be any 10 digit number. Don't forget to change to valid account numbers in the live environment. The package handles the conversion into XML and other necessary stuffs.
- Note: You can find the list of bank IDs [here](https://sandbox.interswitchng.com/docbase/docs/collegepay-web/xml-split-bank-codes)
+ Note: You can find the [list of bank IDs here](https://sandbox.interswitchng.com/docbase/docs/collegepay-web/xml-split-bank-codes)
  
  ## Transaction Logs
  You can find all transaction logs at the 'interswitch-logs' route. Don't forget to protect this route. You don't want just any user to have access to it.
