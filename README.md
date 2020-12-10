@@ -94,7 +94,7 @@ INTERSWITCH_GATEWAY_TYPE=
 The values could be 'WEBPAY', 'PAYDIRECT' or 'COLLEGEPAY'. 'WEBPAY' is the default.
 
 ## Split Payment
-With split payment, you can divide money recieved on your site into multiple accounts. This is only available on COLLEGEPAY. Split implements uses XML which I have handled in the package. You can setup split payments in two easy steps:
+With split payment, you can divide money recieved on your site into multiple accounts. This is only available on COLLEGEPAY. Split implementation uses XML which I have handled in the package. You can setup split payments in two easy steps:
 ### 1. Enable split payments in .env like so:
 ```php
  INTERSWITCH_SPLIT=true
@@ -119,16 +119,16 @@ With split payment, you can divide money recieved on your site into multiple acc
       ],
  ```
  In the above example, two bank accounts are indicated and the total amount is split into two equal parts (50% each) as indicated with 'percentageAllocation'. In the test environment, 'accountNumber' can be any 10 digit number. Don't forget to change to valid account numbers in the live environment. The package handles the conversion into XML and other necessary stuffs.
- Note: You can find the [list of bank IDs here](https://sandbox.interswitchng.com/docbase/docs/collegepay-web/xml-split-bank-codes)
+ Note: You can find the [list of bank IDs here.](https://sandbox.interswitchng.com/docbase/docs/collegepay-web/xml-split-bank-codes)
  
  ## Transaction Logs
  You can find all transaction logs at the 'interswitch-logs' route. Don't forget to protect this route. You don't want just any user to have access to it.
  
  ### Requerying Transactions
- Sometimes, things might go wrong while a user is making payment. It could be power failure or flaky internet connectivity. To complete an already started payment process, you can click the 'requery' button in 'interswitch logs'. This updates the transaction as necessary.
+ Sometimes, things might go wrong while a user is making a payment. It could be power failure or flaky internet connectivity. To complete an already started payment process, you can click the 'requery' button in 'interswitch logs'. This updates the transaction as necessary.
  
  ## Contributing
- Do feel free to fork this repo and contribute by submitting a pull request. Let's make this better.
+ Do feel free to fork this repo and contribute by submitting a pull request. Let's make it better.
  
  ## Star
  I'd love you star this repo. Also [follow me on twitter](https://twitter.com/dev_toyosi)
