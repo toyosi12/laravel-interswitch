@@ -55,7 +55,7 @@ Create your payment route in web.php. Something like:
 ```php
 Route::get('pay', function(){
   return view('payment');
-})
+});
 ```
 Then create the view. In this case, 'payment.blade.php'. The view can be like so:
 ```html
