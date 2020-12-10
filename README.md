@@ -57,28 +57,80 @@ Then create the view. In this case, 'payment.blade.php'. The view can be like so
 ```html
 <form action="interswitch-pay" method="post">
     <input type="hidden" name="customerName" value="Toyosi Oyelayo" />
-    <input type="hidden" name="customerID" "1" />
-    <input type="hidden" name="customerEmail" />
-    <input type="hidden" name="amount" />
-    <button type="submit">Pay</button>
+    <input type="hidden" name="customerID" value="1" />
+    <input type="hidden" name="customerEmail" value="toyosioyelayo@gmail.com" />
+    <input type="hidden" name="amount" value="12000" />
+    <button type="submit"
+    style="padding: 10px 20px; background-color: #ff0000; border: none; color: #fff">Pay Now</button>
 </form>
 ```
 
+Note that the form is submitted to 'interswitch-pay', this is predefined in the package.
 All the fields are required. On clicking the 'Pay' button, the user is redirected to interswitch's payment page, where card details are entered. The user is then redirected back to your website as indicated by 'INTERSWITCH_SITE_REDIRECT_URL'.
 A list of test cards can be found [here](https://sandbox.interswitchng.com/docbase/docs/webpay/test-cards).
 
 
 ### Live Environment
-The same processes described in Test Environment above also applies to the live environment. Do note that Interswitch does certain checks on your website before, it can be approved to recieve live payments.
+The same processes described in the test environment above also applies to the live environment. Do note that Interswitch does certain checks on your website before it can be approved to recieve live payments:
 1. You must have the interswitch logo on your website
 2. You must have filled and submitted the User Acceptance Test Form which has to be approved by interswitch. You can download the form [here](https://sandbox.interswitchng.com/docbase/docs/webpay/merchant-user-acceptance-testing)
-3. After this, you are given your unique Product ID, MAC ID and Pay Item ID. These have to included in your .env file like so:
+3. After this, you are given your unique Product ID, MAC ID and Pay Item ID. These have to be included in your .env file like so:
 
 ```php
 INTERSWITCH_PRODUCT_ID=
 INTERSWITCH_MAC_KEY=
 INTERSWITCH_PAY_ITEM_ID=
 ```
+
+You also have to change the environment to live like so:
+```php
+INTERSWITCH_ENV=LIVE
+```
+
+To change the integration type, use:
+```php
+INTERSWITCH_GATEWAY_TYPE=
+```
+The values could be 'WEBPAY', 'PAYDIRECT' or 'COLLEGEPAY'. 'WEBPAY' is the default.
+
+## Split Payment
+With split payment, you can divide money recieved on your site into multiple accounts. This is only available on COLLEGEPAY. Split implements uses XML which I have handled in the package. You can setup split payments in two easy steps:
+### 1. Enable split payments in .env like so:
+```php
+ INTERSWITCH_SPLIT=true
+ ```
+ ### 2. Configure accounts and percentage allocation.
+ You need to specify the account numbers to be credited and percentage of the total amount to be credited into each account. To do this, open 'config/interswitch.php' and edit the key 'splitDetails'. Do note that this key already exists, you only need to edit it:
+ ```php
+ 'splitDetails' => [
+          [
+            'itemName' => 'item1',
+            'bankID' => 7,
+            'accountNumber' => 1234567890,
+            'percentageAllocation' => 50
+
+        ],
+        [
+            'itemName' => 'item2',
+            'bankID' => 10,
+            'accountNumber' => 4564567890,
+            'percentageAllocation' => 50
+        ]
+      ],
+ ```
+ In the above example, two bank accounts are indicated and the total amount is split into two equal parts (50% each) as indicated with 'percentageAllocation'. In the test environment, 'accountNumber' can be any 10 digit number. Don't forget to change to valid account numbers in the live environment. The package handles the conversion into XML and other necessary stuffs.
+ 
+ 
+ ## Contributing
+ Do feel free to fork this repo and contribute by submitting a pull request. Let's make this better.
+ 
+ ## Star
+ I'd love you star this repo. Also [follow me on twitter](https://twitter.com/dev_toyosi)
+ 
+ ## License
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
 
 
 
