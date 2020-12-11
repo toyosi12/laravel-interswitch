@@ -9,7 +9,7 @@
      /**
       * Integration method. Could be WEBPAY, PAYDIRECT or COLLEGEPAY. Default is WEBPAY
       */
-     'gatewayType' => env('INTERSWITCH_GATEWAY_TYPE', 'COLLEGEPAY'),
+     'gatewayType' => env('INTERSWITCH_GATEWAY_TYPE', 'WEBPAY'),
 
      /**
       * Currency, Naira is default
@@ -34,7 +34,7 @@
       /**
        * Split payment or not
        */
-      'split' => env('INTERSWITCH_SPLIT', true),
+      'split' => env('INTERSWITCH_SPLIT', false),
 
       /**
        * Name of Institution(CollegePay split payment only)
